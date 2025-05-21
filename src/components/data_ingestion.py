@@ -9,8 +9,8 @@ from src.logger import logging
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
-from src.components.data_transformation import DataTransformation
-from src.components.data_transformation import DataTransformationConfig
+from src.components.data_transformation import DataTransformationConfig, DataTransformation
+from src.components.model_trainer import ModelTrainerConfig, ModelTrainer
 
 @dataclass
 class DataIngestionConfig:
@@ -57,7 +57,19 @@ if __name__ == "__main__":
     train_data_path, test_data_path = obj.initial_data_ingestion()
 
     # Initialising the data transforming function
-    data_transformation = DataTransformation().initiate_data_transformation(
+    data_transformation = DataTransformation()
+    train_array, test_array, preprocessor_path = data_transformation.initiate_data_transformation(
         train_path = train_data_path,
         test_path = test_data_path
     )
+
+    # Initialising the model trainer function
+    model_trainer = ModelTrainer()
+    best_model_scores, model_reports = model_trainer.initiate_model_trainer(
+        train_array = train_array,
+        test_array = test_array,
+        preprocessor_path = preprocessor_path
+    )
+    logging.info(f"The model report: {model_reports}")
+    print(f"The model R2 score for Training dataset: {best_model_scores[0]}, and for the Testing dataset: {best_model_scores[1]}")
+
