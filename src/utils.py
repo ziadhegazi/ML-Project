@@ -10,6 +10,7 @@ import pandas as pd
 import dill
 from src.exception import CustomException
 from sklearn.metrics import r2_score
+from sklearn.model_selection import GridSearchCV
 
 
 ####### saving object files by taking the filepath we want to save it in and the object
@@ -27,12 +28,18 @@ def save_object(filepath, obj):
 
 
 ####### Evaluating the metrics of the models we are using
-def evaluate_models(x_train, y_train, x_test, y_test, models):
+def evaluate_models(x_train, y_train, x_test, y_test, models, params):
     try:
         report = {}
 
         for i in range(len(list(models))):
             model = list(models.values())[i]
+            param = params[list(models.keys())[i]]
+
+            gs = GridSearchCV(estimator = model, param_grid = param, cv = 3)        # Hyperparameter tuning
+
+            gs.fit(x_train, y_train)
+            model.set_params(**gs.best_params_)
 
             model.fit(x_train, y_train)         #Train the model
 
